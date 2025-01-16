@@ -1,0 +1,13 @@
+../Core/Src/main.c:98:5:main	8	static
+../Core/Src/main.c:167:6:SystemClock_Config	88	static
+../Core/Src/main.c:206:13:MX_I2C1_Init	8	static
+../Core/Src/main.c:238:6:MX_SPI1_Init	8	static
+../Core/Src/main.c:274:13:MX_TIM2_Init	64	static
+../Core/Src/main.c:329:6:MX_GPIO_Init	40	static
+../Core/Src/main.c:372:6:RC522_Init	8	static
+../Core/Src/main.c:380:6:I2C_DENIED	8	static
+../Core/Src/main.c:387:6:I2C_GRANTED	8	static
+../Core/Src/main.c:397:6:I2C_WELCOME	8	static
+../Core/Src/main.c:404:6:I2C_CARD	96	static
+../Core/Src/main.c:431:6:GenerateTone	16	static
+../Core/Src/main.c:445:6:Error_Handler	4	static,ignoring_inline_asm
