@@ -5,19 +5,13 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
-../Core/Inc/I2C_LCD.c \
-../Core/Inc/I2C_LCD_cfg.c \
-../Core/Inc/rc522.c 
+../Core/Inc/poruke.c 
 
 OBJS += \
-./Core/Inc/I2C_LCD.o \
-./Core/Inc/I2C_LCD_cfg.o \
-./Core/Inc/rc522.o 
+./Core/Inc/poruke.o 
 
 C_DEPS += \
-./Core/Inc/I2C_LCD.d \
-./Core/Inc/I2C_LCD_cfg.d \
-./Core/Inc/rc522.d 
+./Core/Inc/poruke.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
@@ -27,7 +21,7 @@ Core/Inc/%.o Core/Inc/%.su Core/Inc/%.cyclo: ../Core/Inc/%.c Core/Inc/subdir.mk
 clean: clean-Core-2f-Inc
 
 clean-Core-2f-Inc:
-	-$(RM) ./Core/Inc/I2C_LCD.cyclo ./Core/Inc/I2C_LCD.d ./Core/Inc/I2C_LCD.o ./Core/Inc/I2C_LCD.su ./Core/Inc/I2C_LCD_cfg.cyclo ./Core/Inc/I2C_LCD_cfg.d ./Core/Inc/I2C_LCD_cfg.o ./Core/Inc/I2C_LCD_cfg.su ./Core/Inc/rc522.cyclo ./Core/Inc/rc522.d ./Core/Inc/rc522.o ./Core/Inc/rc522.su
+	-$(RM) ./Core/Inc/poruke.cyclo ./Core/Inc/poruke.d ./Core/Inc/poruke.o ./Core/Inc/poruke.su
 
 .PHONY: clean-Core-2f-Inc
 

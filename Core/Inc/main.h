@@ -33,6 +33,9 @@ extern "C" {
 /* USER CODE BEGIN Includes */
 void MX_SPI1_Init(void);
 void MX_GPIO_Init(void);
+
+
+
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/

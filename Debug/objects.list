@@ -1,6 +1,4 @@
-"./Core/Inc/I2C_LCD.o"
-"./Core/Inc/I2C_LCD_cfg.o"
-"./Core/Inc/rc522.o"
+"./Core/Inc/poruke.o"
 "./Core/Src/main.o"
 "./Core/Src/stm32f4xx_hal_msp.o"
 "./Core/Src/stm32f4xx_it.o"
