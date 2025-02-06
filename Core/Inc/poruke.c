@@ -35,10 +35,8 @@ const char *denied_messages[][2] = {
     {"ACCESS DENIED!", "WOMP! WOMP!"},
     {"ACCESS DENIED", "Nah, try again."},
     {"DOOR STATUS:", "Still closed."},
-    {"AUTH FAILED", "Better luck next time."},
-    {"WRONG CARD", "This ain't it, chief."},
+    {"WRONG CARD", "This ain't it!"},
     {"ACCESS DENIED", "Not today, my guy."},
-    {"ERROR 403", "You shall not pass."},
     {"LOGIN FAILED", "Check yourself."},
     {"SECURITY ALERT", "That ain't valid."},
     {"ACCESS BLOCKED", "Nice try, FBI."},
@@ -49,10 +47,10 @@ const char *denied_messages[][2] = {
     {"SECURITY CHECK", "You ain't on the list."},
     {"WRONG KEYCARD", "Not in this lifetime."},
     {"BAD CREDENTIALS", "Try another one."},
-    {"ACCESS DENIED", "Ask nicely next time."},
+    {"ACCESS DENIED", "Ask nicely"},
     {"DENIED", "Maybe with a bribe?"},
     {"AUTHORIZATION:", "Yeah, no."},
-    {"LOGIN FAILED", "Are you even trying?"}
+    {"LOGIN FAILED", "Are you trying?"}
 };
 const uint8_t denied_messages_count = sizeof(denied_messages) / sizeof(denied_messages[0]);
 

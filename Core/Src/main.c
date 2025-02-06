@@ -58,8 +58,6 @@ typedef struct {
 
 } I2C_LCD_CfgType;
 
-
-
 /* LCD includes END------------------------------------------------------------------*/
 
 /* RC522 includes BEGIN------------------------------------------------------------------*/
@@ -129,6 +127,7 @@ void I2C_DENIED(void); // Prikazuje poruku 'DENIED' na LCD-u i generira zvučni 
 void I2C_GRANTED(void); // Prikazuje poruku 'GRANTED' na LCD-u, aktivira relej i generira zvučni signal
 void I2C_WELCOME(void); // Prikazuje poruku dobrodošlice i upute za skeniranje kartice na LCD-u
 void I2C_CARD(uint8_t *data);  // Prikazuje UID kartice na LCD ekranu u dva reda
+#define TIM_CLOCK 16000000  // 16 MHz
 void GenerateTone(int tone, int duration_ms); // Generira zvučni signal pomoću PWM-a na piezo zvučniku
 
 /* USER CODE END PFP */
@@ -315,9 +314,9 @@ static void MX_TIM2_Init(void) {
 
 	/* USER CODE END TIM2_Init 1 */
 	htim2.Instance = TIM2;
-	htim2.Init.Prescaler = 16;
+	htim2.Init.Prescaler = 1;
 	htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-	htim2.Init.Period = 999;
+	htim2.Init.Period = 7999;
 	htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
 	htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
 	if (HAL_TIM_Base_Init(&htim2) != HAL_OK) {
@@ -429,7 +428,8 @@ void I2C_DENIED(void) {
 	I2C_LCD_SetCursor(0, 1);
 	I2C_LCD_WriteString((char*) denied_messages[random_index][1]); // Second line
 	// Generiranje zvučnog signala
-	GenerateTone(300, 100);
+	GenerateTone(800, 300);
+
 	// Mala pauza da korisnik vidi poruku
 	HAL_Delay(2500);
 
@@ -448,7 +448,7 @@ void I2C_GRANTED(void) {
 	HAL_GPIO_WritePin(RELAY_PORT, RELAY_PIN, GPIO_PIN_SET);
 
 	// Zvuk odobrenja
-	GenerateTone(500, 100);
+	GenerateTone(2000, 100);
 
 	// Drži relej uključen 5 sekundi
 	HAL_Delay(2500);
@@ -498,11 +498,14 @@ void I2C_CARD(uint8_t *data) {
 
 void GenerateTone(int tone, int duration_ms) {
 	Reset_TIM2();
-	HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);  				// Pokretanje PWM-a
-	__HAL_TIM_SET_AUTORELOAD(&htim2, tone * 2); 		// Postavljanje perioda
-	__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, tone / 2); // Podešavanje duty cycle-a na 50%
-	HAL_Delay(duration_ms);  								// Trajanje zvuka
-	__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, 0); // Postavljanje duty cycle-a na 0%
+    uint32_t arr = (TIM_CLOCK / tone) - 1; // Izračun ARR za željenu frekvenciju
+
+    __HAL_TIM_SET_AUTORELOAD(&htim2, arr); // Postavljanje perioda PWM-a
+    __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, arr / 2); // 50% duty cycle
+
+    HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2); // Pokretanje PWM-a
+    HAL_Delay(duration_ms); // Trajanje tona
+    HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_2); // Isključivanje PWM-a
 }
 
 void Reset_TIM2(void) {
@@ -664,12 +667,9 @@ uint8_t MFRC522_Anticoll(uint8_t *serNum) {
 
 /*-----------------------[INTERNAL VARIABLES]-----------------------*/
 
-typedef struct I2C_LCD_InfoParam_s {
-	//uint8_t DisplayCtrl;
-	//uint8_t BacklightVal;  // Dodano nazad da kontrolira pozadinsko osvjetljenje
-} I2C_LCD_InfoParam_t;
+typedef struct I2C_LCD_InfoParam_s {}
+I2C_LCD_InfoParam_t;
 
-//static I2C_LCD_InfoParam_t I2C_LCD_InfoParam_g[I2C_LCD_MAX];
 
 /*---------------------[STATIC INTERNAL FUNCTIONS]-----------------------*/
 
@@ -732,10 +732,6 @@ void I2C_LCD_Init() {
 
 	//I2C_LCD_Cmd(LCD_ENTRYMODESET | LCD_ENTRYLEFT | LCD_ENTRYSHIFTDECREMENT);
 	I2C_LCD_Cmd(0x06);
-
-	//I2C_LCD_InfoParam_g[0].DisplayCtrl = 0x04;
-	//I2C_LCD_InfoParam_g[0].BacklightVal = 0x08; // Postavi pozadinsko osvjetljenje na ON
-
 	I2C_LCD_Clear();
 }
 
@@ -758,9 +754,9 @@ void I2C_LCD_WriteString(char *Str) {
 	}
 }
 
-/* LCD functions END------------------------------------------------------------------*/
+/* LCD functions END-------------------------------------------------------*/
 
-/* MicroSeconds functions BEGIN------------------------------------------------------------------*/
+/* MicroSeconds functions END--------------------------------------------------*/
 void Delay_us(uint32_t us) {
 	uint32_t start = DWT->CYCCNT;
 	uint32_t ticks = (SystemCoreClock / 1000000) * us; // Pretvara µs u CPU cikluse
@@ -774,7 +770,7 @@ void DWT_Init(void) {
 	DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;  // Omogući counter
 }
 
-/* MicroSeconds functions END------------------------------------------------------------------*/
+/* MicroSeconds functions END--------------------------------------------------*/
 
 /* USER CODE END 4 */
 
