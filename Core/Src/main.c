@@ -34,10 +34,10 @@
 /* LCD includes BEGIN------------------------------------------------------*/
 
 // Deklaracije LCD funkcija
-void Delay_us(uint32_t us);				//prototip funkcije mikrosekunda
-void DWT_Init(void);			//prototip funkcije inicijalizacije mikrosekundi
-void I2C_LCD_Init(void); // Inicijalizacija LCD ekrana
-void I2C_LCD_Clear(void); // Briše sadržaj LCD ekrana
+void Delay_us(uint32_t us);	//prototip funkcije mikrosekunda
+void DWT_Init(void);		//prototip funkcije inicijalizacije mikrosekundi
+void I2C_LCD_Init(void); 	// Inicijalizacija LCD ekrana
+void I2C_LCD_Clear(void); 	// Briše sadržaj LCD ekrana
 void I2C_LCD_SetCursor(uint8_t Col, uint8_t Row); // Postavlja kursor na određenu poziciju
 void I2C_LCD_WriteString(char *Str); // Ispisuje string na LCD
 typedef struct {
@@ -672,26 +672,23 @@ I2C_LCD_InfoParam_t;
 
 
 /*---------------------[STATIC INTERNAL FUNCTIONS]-----------------------*/
-
+//ZAPISIVANJE PODATKA U I2C EKSPANDERSKI MODUL
 static void I2C_LCD_ExpanderWrite(uint8_t DATA) {
 	uint8_t TxData = DATA | 0x08;
 	HAL_I2C_Master_Transmit(&hi2c1,(0x27 << 1),
 			&TxData, sizeof(TxData), 100);
 }
 
+//PULSIRANJE LCD EKRANA
 static void I2C_LCD_EnPulse(uint8_t DATA) {
-	I2C_LCD_ExpanderWrite(DATA | 0b00000100); // En high
+	//
+	I2C_LCD_ExpanderWrite(DATA | 0b00000100); // EnABLE high
 	Delay_us(2);
 
-	I2C_LCD_ExpanderWrite(DATA & ~0b00000100); // En low
+	I2C_LCD_ExpanderWrite(DATA & ~0b00000100); // ENable low
 	Delay_us(50);
-
 }
 
-static void I2C_LCD_Write4Bits(uint8_t Val) {
-	I2C_LCD_ExpanderWrite(Val);
-	I2C_LCD_EnPulse(Val);
-}
 //funkcija za slanje putem I2C
 static void I2C_LCD_Send(uint8_t Val, uint8_t Mode) {
 	//vrijednost koju je primio putem val varijable šalje putem 4 bita koje dijelimo
@@ -701,16 +698,14 @@ static void I2C_LCD_Send(uint8_t Val, uint8_t Mode) {
 	uint8_t LowNib = (Val << 4) & 0xF0;
 	// mode može biti 0x00 ili 0x01 ovisno šaljemo li komandu ili podatak
 	// Mode 0x00 je komanda, mode 0x01 je podatak
-	I2C_LCD_Write4Bits((HighNib) | Mode);
-	I2C_LCD_Write4Bits((LowNib) | Mode);
+	I2C_LCD_ExpanderWrite(HighNib | Mode);
+	I2C_LCD_EnPulse(HighNib | Mode);
+	I2C_LCD_ExpanderWrite(LowNib | Mode);
+	I2C_LCD_EnPulse(LowNib | Mode);
 }
 
 static void I2C_LCD_Cmd(uint8_t CMD) {
 	I2C_LCD_Send(CMD, 0);
-}
-
-static void I2C_LCD_Data(uint8_t DATA) {
-	I2C_LCD_Send(DATA, 1);
 }
 
 /*-----------------------[USER EXTERNAL FUNCTIONS]-----------------------*/
@@ -736,21 +731,24 @@ void I2C_LCD_Init() {
 }
 
 void I2C_LCD_Clear() {
-	I2C_LCD_Cmd(0x01);
+
+	I2C_LCD_Send(0x01, 0);
 	HAL_Delay(2);
 }
 
 void I2C_LCD_SetCursor(uint8_t Col, uint8_t Row) {
 	int Row_Offsets[] = { 0x00, 0x40, 0x14, 0x54 };
-	if (Row > 2) {
-		Row = 1;
-	}
-	I2C_LCD_Cmd(0x80 | (Col + Row_Offsets[Row]));
+		if (Row > 2) {
+			Row = 1;
+		}
+		I2C_LCD_Send(0x80 | (Col + Row_Offsets[Row]), 0);
 }
 
 void I2C_LCD_WriteString(char *Str) {
+	//petlja se izvršava dok ne dođe do terminatora
 	while (*Str) {
-		I2C_LCD_Data(*Str++);
+		//šaljem znak po znak LCDU i pomijeram pointer na novi znak
+		I2C_LCD_Send(*Str++,1);
 	}
 }
 
